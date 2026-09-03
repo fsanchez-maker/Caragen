@@ -1,1 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?><svg id="Cejas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><defs><style>.cls-1{fill:#ff1d25;}</style></defs><g id="CC"><path id="CD" class="cls-1" d="M962.4,844.9c-100.6-41.2-318-115.8-360.3,30.6-30.4-144.6,371.5-148.6,360.3-30.6Z"/><path id="CD-2" class="cls-1" d="M1101.4,837.7c16.8-121,380.3-111.2,366.6,29.4-46.9-143-262.7-67.2-366.6-29.4Z"/></g></svg>
+<svg width="2048" height="2048" viewBox="0 0 2048 2048" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="CC">
+<g id="Pelo">
+<path d="M602.1 875.5C571.7 730.9 973.599 726.9 962.4 844.9C861.8 803.7 644.4 729.1 602.1 875.5Z" fill="#FF0000"/>
+<path d="M1101.4 837.699C1118.2 716.7 1481.7 726.5 1468 867.1C1421.1 724.1 1205.3 799.899 1101.4 837.699Z" fill="#FF0000"/>
+</g>
+</g>
+</svg>
