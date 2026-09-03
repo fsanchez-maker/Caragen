@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Caragen — Generador de caras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="masthead">
+        <a class="brand" href="./" aria-label="Caragen, inicio"><span class="brand-mark">C</span>CARAGEN</a>
+        <p>Laboratorio de retratos · <span id="selection-count">0</span> rasgos combinados</p>
+      </header>
+
+      <section class="workspace" aria-label="Generador de caras">
+        <div class="portrait-panel">
+          <div class="portrait-frame">
+            <svg id="portrait" viewBox="0 0 2048 2048" role="img" aria-label="Cara generada"></svg>
+            <div class="portrait-loading" id="loading">Preparando el retrato…</div>
+          </div>
+          <div class="portrait-actions">
+            <button class="button button-random" id="randomize" type="button"><span>✦</span> Aleatorio</button>
+            <button class="button button-download" id="download" type="button"><span>↓</span> Descargar SVG</button>
+          </div>
+        </div>
+
+        <aside class="controls-panel" aria-label="Controles de personalización">
+          <div class="controls-heading"><p class="eyebrow">Configura tu avatar</p><h1>Tu cara,<br /><em>tus reglas.</em></h1></div>
+          <div id="layer-controls" class="controls-list"></div>
+          <section class="colors-section" aria-labelledby="colors-title">
+            <div class="section-label"><h2 id="colors-title">Paleta</h2><span>Color compartido</span></div>
+            <div id="color-controls" class="color-controls"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+    <template id="layer-template">
+      <section class="control-row">
+        <div class="control-meta"><label></label><output></output></div>
+        <input type="range" min="0" step="1" />
+      </section>
+    </template>
+    <script src="app.js"></script>
+  </body>
+</html>
