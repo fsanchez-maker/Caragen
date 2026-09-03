@@ -14,7 +14,13 @@ const palettes = {
   Marcas: ['#ba9088', '#9f8262', '#bb7887', '#a59596'], Cavidad: ['#2c1b0e'],
   Blanco: ['#fdfbfb'], Negro: ['#060507'],
 };
-const sourceColors = { Labios: '#ff931e', Piel: '#ff7bac', Ojos: '#39b54a', Pelo: '#ff1d25', 'Sombra pelo': '#662d91', Dientes: '#ff00ff', Marcas: '#3fa9f5', Cavidad: '#9e005d', Blanco: '#fdfbfb', Negro: '#060507' };
+// `source` is the colour actually stored in the supplied SVG files. Dientes uses
+// the equivalent shorthand #f0f rather than the long #ff00ff form.
+const sourceColors = {
+  Labios: ['#ff931e'], Piel: ['#ff7bac'], Ojos: ['#39b54a'], Pelo: ['#ff1d25'],
+  'Sombra pelo': ['#662d91'], Dientes: ['#f0f', '#ff00ff'], Marcas: ['#3fa9f5'],
+  Cavidad: ['#9e005d'], Blanco: ['#fdfbfb'], Negro: ['#060507'],
+};
 const state = { choices: {}, colors: Object.fromEntries(Object.entries(palettes).map(([key, values]) => [key, values[0]])), files: {} };
 const svg = document.querySelector('#portrait');
 const layerControls = document.querySelector('#layer-controls');
@@ -26,7 +32,13 @@ async function getFiles(folder) {
   return Promise.all(stems.map(async stem => ({ name: stem, markup: await fetch(`Export/${folder}/${stem}.svg`).then(response => response.text()) })));
 }
 function bodyOf(markup) { return markup.replace(/<\?xml[^>]*>/i, '').replace(/^\s*<svg[^>]*>|<\/svg>\s*$/gi, ''); }
-function paint(markup) { return Object.entries(sourceColors).reduce((result, [name, source]) => result.replaceAll(source, state.colors[name]), markup); }
+function paint(markup) {
+  // Replace each original SVG colour in a single pass so selecting a palette
+  // colour that matches another source colour can never trigger a second swap.
+  const replacements = Object.entries(sourceColors).flatMap(([name, sources]) => sources.map(source => [source.slice(1).toLowerCase(), state.colors[name]]));
+  const lookup = new Map(replacements);
+  return markup.replace(/#[0-9a-f]{3,6}\b/gi, colour => lookup.get(colour.slice(1).toLowerCase()) || colour);
+}
 function render() {
   // The supplied order is foreground-to-background, so reverse it for SVG painter's order.
   const content = [...layers].reverse().map(([label, folder]) => {
@@ -45,7 +57,17 @@ function buildLayerControls() {
     layerControls.append(node);
   });
 }
-function buildColorControls() { const container = document.querySelector('#color-controls'); Object.entries(palettes).forEach(([name, values]) => { const label = document.createElement('label'); label.className = 'color-picker'; const swatches = values.map(color => `<i style="background:${color}"></i>`).join(''); label.innerHTML = `<span>${name}</span><div class="swatches">${swatches}</div><select aria-label="Color de ${name}">${values.map(color => `<option value="${color}">${color}</option>`).join('')}</select>`; const select = label.querySelector('select'); select.value = state.colors[name]; select.addEventListener('change', () => { state.colors[name] = select.value; render(); }); container.append(label); }); }
+function buildColorControls() {
+  const container = document.querySelector('#color-controls');
+  Object.entries(palettes).forEach(([name, values]) => {
+    const label = document.createElement('label'); label.className = 'color-picker';
+    const swatches = values.map(color => `<i style="background:${color}" aria-hidden="true"></i>`).join('');
+    label.innerHTML = `<span>${name}</span><div class="color-input"><i class="selected-swatch" aria-hidden="true"></i><select aria-label="Color de ${name}">${values.map(color => `<option value="${color}">${color.toUpperCase()}</option>`).join('')}</select></div><div class="swatches">${swatches}</div>`;
+    const select = label.querySelector('select'); const selectedSwatch = label.querySelector('.selected-swatch');
+    const applyColor = () => { state.colors[name] = select.value; selectedSwatch.style.background = select.value; render(); };
+    select.value = state.colors[name]; selectedSwatch.style.background = select.value; select.addEventListener('change', applyColor); container.append(label);
+  });
+}
 function syncControls() { document.querySelectorAll('.control-row input').forEach(input => input.dispatchEvent(new Event('input'))); document.querySelectorAll('.color-picker select').forEach(select => select.value = state.colors[select.closest('.color-picker').querySelector('span').textContent]); }
 function randomize() { Object.keys(state.files).forEach(folder => { if (!fixedLayers.has(folder)) state.choices[folder] = Math.floor(Math.random() * state.files[folder].length); }); Object.entries(palettes).forEach(([name, values]) => { state.colors[name] = values[Math.floor(Math.random() * values.length)]; }); syncControls(); render(); }
 function download() { const output = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">${svg.innerHTML}</svg>`; const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([output], { type: 'image/svg+xml' })); link.download = 'mi-caragen.svg'; link.click(); URL.revokeObjectURL(link.href); }
